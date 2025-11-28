@@ -47,7 +47,9 @@ def main():
 
     # Initialize enricher and output adapter
     enricher = EventEnricher()
-    output = OutputAdapter(mode="stdout")  # or "file", "http"
+    output = OutputAdapter(mode="http", config={
+        "api_endpoint": "http://localhost:8000/api/events"
+    })
 
     # Launch monitors
     syscall_proc = subprocess.Popen(

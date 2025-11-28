@@ -6,8 +6,8 @@ import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from utilities.docker_utils import get_container_id_from_pid, get_container_metadata
-from utilities.syscall_utils import categorize_syscall, get_risk_score, is_security_relevant_syscall
+from utilities import get_container_id_from_pid, get_container_metadata
+from utilities import categorize_syscall, get_risk_score, is_security_relevant_syscall
 
 
 class EventEnricher:

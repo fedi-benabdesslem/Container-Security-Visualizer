@@ -11,7 +11,8 @@ from .docker_utils import (
 from .syscall_utils import (
     parse_syscall_name,
     is_security_relevant_syscall,
-    categorize_syscall
+    categorize_syscall,
+    get_risk_score
 )
 
 __all__ = [
@@ -20,5 +21,6 @@ __all__ = [
     'is_containerized',
     'parse_syscall_name',
     'is_security_relevant_syscall',
-    'categorize_syscall'
+    'categorize_syscall',
+    'get_risk_score'
 ]
