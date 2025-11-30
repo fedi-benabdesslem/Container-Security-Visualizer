@@ -21,17 +21,15 @@ class EventEnricher:
         pid = event.get("pid")
 
         if pid is None:
-            event["container_id"] = None
-            event["container_name"] = None
-            event["container_image"] = None
-            return event
+            return None
 
         # Get container ID
         try:
             container_id = get_container_id_from_pid(int(pid))
         except Exception:
             container_id = None
-
+        if container_id is None:
+            return None
         event["container_id"] = container_id
 
         # Get full metadata if container found
@@ -42,18 +40,13 @@ class EventEnricher:
                 event["container_image"] = metadata.get("image")
                 event["container_status"] = metadata.get("status")
                 if event.get("monitor_type") == "syscall":
-                    syscall = "execve"
+                    syscall = event.get("syscall_name", "unknown")
                     event["categories"] = categorize_syscall(syscall)
                     event["risk_score"] = get_risk_score(syscall, event.get("uid"))
                     event["is_security_relevant"] = is_security_relevant_syscall(syscall)
             except Exception as e:
                 print(f"Metadata error: {e}", file=sys.stderr)
-                event["container_name"] = None
-                event["container_image"] = None
-                event["container_status"] = None
         else:
-            event["container_name"] = None
-            event["container_image"] = None
-            event["container_status"] = None
+            return None
 
         return event

@@ -85,6 +85,8 @@ def main():
             try:
                 event = event_queue.get(timeout=1)
                 enriched = enricher.enrich(event)
+                if enriched is None:
+                    continue
                 output.send(enriched)
             except queue.Empty:
                 if syscall_proc.poll() is not None or net_proc.poll() is not None:
