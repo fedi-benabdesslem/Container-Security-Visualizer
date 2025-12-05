@@ -1,20 +1,12 @@
-# config/config.yaml
-
 # eBPF Monitor paths
 ebpf:
   syscall_monitor: "../ebpf/syscall_monitor.py"
   net_monitor: "../ebpf/net_monitor.py"
-
 # Collector settings
 collector:
-  output_mode: "stdout"  # stdout, file, or http
+  output_mode: "http"  # stdout, file, or http
   log_file: "../events/enriched/events.log"
   api_endpoint: "http://localhost:8000/api/events"
-
-# Docker settings
-docker:
-  socket: "/var/run/docker.sock"
-
 # Caching
 cache:
-  pid_ttl_seconds: 60
+  pid_ttl_seconds: 30
