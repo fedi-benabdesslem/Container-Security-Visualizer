@@ -16,7 +16,7 @@ async def websocket_endpoint(
         monitor_type: Optional[str] = Query(None, description="Filter by monitor type"),
         container_id: Optional[str] = Query(None, description="Filter by container ID"),
         min_risk_score: Optional[int] = Query(None, description="Minimum risk score"),
-        suspicious_only: Optional[bool] = Query(False, description="Only security-relevant events")
+        suspicious_only: Optional[bool] = Query(False, description="Only security-relevant events"),
 ):
     """
     WebSocket endpoint for real-time event streaming

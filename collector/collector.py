@@ -3,6 +3,10 @@ import os
 import subprocess
 import threading
 import queue
+
+# Add parent directory to path so utilities can be found
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from event_enricher import EventEnricher
 from output_adapter import OutputAdapter
 from utilities import config

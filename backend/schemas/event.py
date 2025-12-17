@@ -85,9 +85,15 @@ class EventCreate(BaseModel):
 class EventResponse(EventCreate):
     """Schema for event responses - includes database fields"""
     id: int
+    timestamp_iso: datetime
     created_at: datetime
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(
+        from_attributes=True,
+        json_encoders={
+            datetime: lambda v: v.isoformat() if v else None  # ← Auto-convert to ISO string
+        }
+    )
 
 
 class EventFilter(BaseModel):

@@ -8,14 +8,35 @@ def get_container_id_from_pid(pid: int) -> Optional[str]:
         return None
     try:
         with open(cgroup_file, "r") as fh:
-            for line in fh:
+            lines = fh.readlines()
+            # Debug logging
+            try:
+                with open("/tmp/cgroup_debug.log", "a") as log:
+                    log.write(f"PID {pid} cgroup: {lines}\n")
+            except: pass
+
+            for line in lines:
                 parts = line.strip().split(":")
                 if len(parts) < 3:
                     continue
                 path = parts[2]
+                
+                # Handle cgroup v2 paths like .../docker-<id>.scope
                 tokens = path.split("/")
                 for t in reversed(tokens):
-                    if len(t) >= 12 and all(c.isalnum() or c == '-' for c in t):
+                    # Handle systemd scope naming
+                    if t.endswith(".scope"):
+                        t = t[:-6]
+                    if t.startswith("docker-"):
+                        t = t[7:]
+                    
+                    # Check for container ID format (hex string >= 12 chars)
+                    # Docker IDs are 64-char hex, we take first 12
+                    if len(t) >= 12 and all(c in '0123456789abcdefABCDEF' for c in t):
+                        try:
+                            with open("/tmp/cgroup_debug.log", "a") as log:
+                                log.write(f"  MATCH: {t[:12]}\n")
+                        except: pass
                         return t[:12]
     except Exception:
         return None

@@ -12,7 +12,7 @@ from backend.utils.logger import logger
 
 
 # Import routers
-
+from sqlalchemy import text
 from backend.api import events, query, stats, alerts, containers, websocket, analytics
 
 
@@ -83,7 +83,7 @@ async def health_check():
     try:
         # Test database connection
         with engine.connect() as conn:
-            conn.execute("SELECT 1")
+            conn.execute(text("SELECT 1"))
         db_status = "healthy"
     except Exception as e:
         logger.error(f"Database health check failed: {e}")

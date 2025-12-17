@@ -1,30 +1,27 @@
-# Run as root.
 from bcc import BPF
 from datetime import datetime
 import json
 import os
 import signal
 import sys
-import socket
-import struct
+
 THIS_DIR = os.path.dirname(os.path.realpath(__file__))
-C_FILE = os.path.join(THIS_DIR, "net_monitor.c")
+C_FILE = os.path.join(THIS_DIR, "net_monitor.c")  # ensure name matches
+
 b = BPF(src_file=C_FILE)
-b.attach_kprobe(event="tcp_v4_connect", fn_name="trace_connect")
-print("Loaded BPF network monitor. Listening for TCP connections... (CTRL-C to exit)")
-def _bytes_to_str(b):
-    if not b:
+# b.attach_tracepoint(tp="syscalls:sys_enter_connect", fn_name="trace_connect")
+
+print("Loaded BPF program and attached to sys_enter_connect tracepoint. Listening for events... (CTRL-C to exit)", flush=True)
+
+def _bytes_to_str(bv):
+    if not bv:
         return ""
     try:
-        return b.decode('utf-8', 'ignore').rstrip("\x00")
+        return bv.decode("utf-8", "ignore").rstrip("\x00")
     except Exception:
-        return str(b)
-def _ip_to_str(ip_int):
-    try:
-        return socket.inet_ntoa(struct.pack("I", ip_int))
-    except Exception:
-        return str(ip_int)
-def handle_net_event(cpu, data, size):
+        return str(bv)
+
+def handle_event(cpu, data, size):
     evt = b["net_events"].event(data)
     out = {
         "timestamp_ns": int(evt.ts_ns),
@@ -33,21 +30,26 @@ def handle_net_event(cpu, data, size):
         "tgid": int(evt.tgid),
         "uid": int(evt.uid),
         "comm": _bytes_to_str(evt.comm),
-        "source_ip": _ip_to_str(evt.saddr),
-        "dest_ip": _ip_to_str(evt.daddr),
-        "source_port": int(evt.sport),
-        "dest_port": int(evt.dport),
+        "saddr": int(evt.saddr),
+        "daddr": int(evt.daddr),
+        "sport": int(evt.sport),
+        "dport": int(evt.dport),
         "ip_version": int(evt.ip_version),
-        "event_type": "tcp_connect"
     }
-    print(json.dumps(out, ensure_ascii=False))
-b["net_events"].open_perf_buffer(handle_net_event)
+    print(json.dumps(out, ensure_ascii=False), flush=True)
+    # Debug to stderr
+    # sys.stderr.write(f"DEBUG: Captured network event pid={evt.pid}\n")
+
+b["net_events"].open_perf_buffer(handle_event)
+
 def exit_gracefully(signum, frame):
-    print("\nDetaching network monitor and exiting.")
+    print("\nDetaching and exiting.")
     sys.exit(0)
+
 signal.signal(signal.SIGINT, exit_gracefully)
 signal.signal(signal.SIGTERM, exit_gracefully)
-while True:  # Main
+
+while True:
     try:
         b.perf_buffer_poll()
     except KeyboardInterrupt:

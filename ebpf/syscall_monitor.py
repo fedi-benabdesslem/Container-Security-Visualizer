@@ -25,9 +25,10 @@ def handle_event(cpu, data, size):
         "tgid": int(evt.tgid),
         "uid": int(evt.uid),
         "comm": _bytes_to_str(evt.comm),
-        "argv": _bytes_to_str(evt.argv)
+        "argv": _bytes_to_str(evt.argv),
+        "syscall_name": "execve"  # This monitor tracks execve syscalls
     }
-    print(json.dumps(out, ensure_ascii=False))
+    print(json.dumps(out, ensure_ascii=False), flush=True)
 b["events"].open_perf_buffer(handle_event)
 def exit_gracefully(signum, frame):
     print("\nDetaching and exiting.")
