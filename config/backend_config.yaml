@@ -1,0 +1,39 @@
+# Backend Configuration
+server:
+  host: "0.0.0.0"
+  port: 8002
+  debug: true
+  reload: true  # Auto-reload on code changes (development only)
+
+database:
+  type: "postgresql"
+  host: "localhost"
+  port: 5432
+  name: "container_security"
+  user: "postgres"
+  password: "datasec1"  # Change this!
+
+websocket:
+  max_connections: 100
+  heartbeat_interval: 30  # seconds
+
+alerts:
+  high_risk_threshold: 7
+
+ingestion:
+  max_batch_size: 100
+
+cors:
+  allow_origins:
+    - "http://localhost:3000"
+    - "http://localhost:5173"
+    - "http://127.0.0.1:8080"
+    - "http://localhost:8080"
+  allow_credentials: true
+  allow_methods: ["*"]
+  allow_headers: ["*"]
+
+logging:
+  level: "INFO"
+  file: "logs/backend.log"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

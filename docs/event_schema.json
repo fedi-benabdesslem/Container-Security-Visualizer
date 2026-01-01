@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "syscall_event",
+  "type": "object",
+  "properties": {
+    "timestamp_ns": { "type": "integer", "description": "High-resolution timestamp (ns)" },
+    "timestamp_iso": { "type": "string", "format": "date-time" },
+    "pid": { "type": "integer" },
+    "tgid": { "type": "integer" },
+    "uid": { "type": "integer" },
+    "comm": { "type": "string" },
+    "argv": { "type": "string", "description": "Filename or first argument (best-effort)" },
+    "container_id": { "type": ["string", "null"], "description": "Short container id (12 chars) if available" }
+  },
+  "required": ["timestamp_ns", "pid", "comm"]
+}

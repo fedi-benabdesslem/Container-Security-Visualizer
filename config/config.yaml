@@ -1,0 +1,12 @@
+# eBPF Monitor paths
+ebpf:
+  syscall_monitor: "../ebpf/syscall_monitor.py"
+  net_monitor: "../ebpf/net_monitor.py"
+# Collector settings
+collector:
+  output_mode: "http"  # stdout, file, or http
+  log_file: "../events/enriched/events.log"
+  api_endpoint: "http://localhost:8002/api/events"
+# Caching
+cache:
+  pid_ttl_seconds: 30
