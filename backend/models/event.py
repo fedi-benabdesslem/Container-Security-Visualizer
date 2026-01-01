@@ -50,6 +50,12 @@ class Event(Base):
     dest_port = Column(Integer)
     event_type = Column(String(50))  # 'tcp_connect', etc.
 
+    # Network enrichment fields
+    source_container_id = Column(String(12), index=True)
+    dest_container_id = Column(String(12), index=True)
+    source_container_name = Column(String(255))
+    dest_container_name = Column(String(255))
+
     # Indexes for performance
     __table_args__ = (
         Index('idx_timestamp_desc', timestamp_ns.desc()),
@@ -85,5 +91,9 @@ class Event(Base):
             "source_port": self.source_port,
             "dest_port": self.dest_port,
             "event_type": self.event_type,
+            "source_container_id": self.source_container_id,
+            "dest_container_id": self.dest_container_id,
+            "source_container_name": self.source_container_name,
+            "dest_container_name": self.dest_container_name,
             "created_at": self.created_at.isoformat() if self.created_at else None
         }

@@ -14,7 +14,7 @@ CONFIG_FILE = PROJECT_ROOT / "config" / "backend_config.yaml"
 
 class ServerConfig(BaseSettings):
     host: str = "0.0.0.0"
-    port: int = 8000
+    port: int = 8002
     debug: bool = True
     reload: bool = True
 

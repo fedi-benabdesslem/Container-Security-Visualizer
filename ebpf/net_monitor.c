@@ -22,12 +22,20 @@ struct net_event_t {
 
 BPF_PERF_OUTPUT(net_events);
 
-TRACEPOINT_PROBE(syscalls, sys_enter_connect) {
+struct connect_args {
+  unsigned long long unused;
+  int __syscall_nr;
+  int fd;
+  struct sockaddr *uservaddr;
+  int addrlen;
+};
+
+int trace_connect(struct connect_args *args) {
   struct sockaddr_in sa4 = {};
   u16 family = 0;
 
-  // args->uservaddr is automatically available via TRACEPOINT_PROBE
-  if (bpf_probe_read_user(&sa4, sizeof(sa4), (void *)args->uservaddr) < 0)
+  if (args->uservaddr &&
+      bpf_probe_read_user(&sa4, sizeof(sa4), (void *)args->uservaddr) < 0)
     return 0;
 
   family = sa4.sin_family;
@@ -44,7 +52,6 @@ TRACEPOINT_PROBE(syscalls, sys_enter_connect) {
 
   bpf_get_current_comm(&evt.comm, sizeof(evt.comm));
 
-  // Outgoing connect: local address not yet set here, leave saddr/sport = 0
   evt.daddr = sa4.sin_addr.s_addr;
   evt.dport = ntohs(sa4.sin_port);
   evt.saddr = 0;

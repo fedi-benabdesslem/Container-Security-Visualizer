@@ -12,7 +12,6 @@ from backend.schemas.response import SuccessResponse
 from backend.utils.logger import logger
 from datetime import datetime
 from backend.services.broadcast_manager import manager
-from backend.services.broadcast_manager import manager
 
 router = APIRouter()
 
@@ -52,7 +51,11 @@ async def create_event(
             dest_ip=event.dest_ip,
             source_port=event.source_port,
             dest_port=event.dest_port,
-            event_type=event.event_type
+            event_type=event.event_type,
+            source_container_id=event.source_container_id,
+            dest_container_id=event.dest_container_id,
+            source_container_name=event.source_container_name,
+            dest_container_name=event.dest_container_name
         )
 
         # Save to database
@@ -114,7 +117,11 @@ async def create_events_batch(
                 dest_ip=event.dest_ip,
                 source_port=event.source_port,
                 dest_port=event.dest_port,
-                event_type=event.event_type
+                event_type=event.event_type,
+                source_container_id=event.source_container_id,
+                dest_container_id=event.dest_container_id,
+                source_container_name=event.source_container_name,
+                dest_container_name=event.dest_container_name
             )
             db_events.append(db_event)
 

@@ -25,6 +25,11 @@ export interface WebSocketMessage {
   dest_ip?: string;
   source_port?: number;
   dest_port?: number;
+  // Edge creation fields for container-to-container network events
+  source_container_id?: string;
+  dest_container_id?: string;
+  source_container_name?: string;
+  dest_container_name?: string;
   risk_score?: number;
   categories?: string[];
   is_security_relevant?: boolean;
@@ -41,7 +46,7 @@ interface UseWebSocketOptions {
 }
 
 const buildWebSocketUrl = (filters?: Filters): string => {
-  const baseUrl = 'ws://127.0.0.1:8000/ws/events';
+  const baseUrl = 'ws://127.0.0.1:8002/ws/events';
   const params = new URLSearchParams();
 
   if (filters) {

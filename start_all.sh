@@ -28,23 +28,31 @@ trap cleanup SIGINT
 # 1. Start Backend
 echo -e "${GREEN}[1/3] Starting Backend...${NC}"
 # Check if port 8000 is in use
-if lsof -Pi :8000 -sTCP:LISTEN -t >/dev/null ; then
+if lsof -Pi :8002 -sTCP:LISTEN -t >/dev/null ; then
     echo "Port 8000 is busy, killing existing process..."
-    fuser -k 8000/tcp > /dev/null 2>&1
+    fuser -k 8002/tcp > /dev/null 2>&1
 fi
 
-python3 -m backend.main > backend.log 2>&1 &
+# Determine Python executable for backend
+if [ -d ".venv" ]; then
+    BACKEND_PYTHON=".venv/bin/python3"
+else
+    BACKEND_PYTHON="python3"
+fi
+
+echo "Using Backend Python: $BACKEND_PYTHON"
+$BACKEND_PYTHON -m backend.main > backend.log 2>&1 &
 BACKEND_PID=$!
 echo "Backend running (PID: $BACKEND_PID). Logs: tail -f backend.log"
 
 # 2. Start Frontend
 echo -e "${GREEN}[2/3] Starting Frontend...${NC}"
-cd frontend
 # Check if port 8080 is in use
 if lsof -Pi :8080 -sTCP:LISTEN -t >/dev/null ; then
     echo "Port 8080 is busy, killing existing process..."
     fuser -k 8080/tcp > /dev/null 2>&1
 fi
+cd frontend
 
 npm run dev > ../frontend.log 2>&1 &
 FRONTEND_PID=$!
@@ -72,7 +80,7 @@ else
 fi
 
 echo "Using Python executable: $PYTHON_EXEC"
-sudo PYTHONPATH=$PROJECT_ROOT $PYTHON_EXEC collector/collector.py
+sudo PYTHONPATH=$PROJECT_ROOT $PYTHON_EXEC collector/collector.py > collector.log 2>&1 &
 
 # When collector exits (Ctrl+C), cleanup will be called via trap
 cleanup

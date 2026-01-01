@@ -51,6 +51,12 @@ class NetworkEventCreate(EventBase):
     dest_port: Optional[int] = Field(None, ge=0, le=65535, description="Destination port")
     event_type: Optional[str] = Field(None, max_length=50, description="Event type (e.g., tcp_connect)")
 
+    # Network enrichment
+    source_container_id: Optional[str] = Field(None, max_length=12)
+    dest_container_id: Optional[str] = Field(None, max_length=12)
+    source_container_name: Optional[str] = Field(None, max_length=255)
+    dest_container_name: Optional[str] = Field(None, max_length=255)
+
 
 class EventCreate(BaseModel):
     """Generic event creation schema - accepts both syscall and network events"""
@@ -80,6 +86,12 @@ class EventCreate(BaseModel):
     source_port: Optional[int] = None
     dest_port: Optional[int] = None
     event_type: Optional[str] = None
+
+    # Network enrichment
+    source_container_id: Optional[str] = None
+    dest_container_id: Optional[str] = None
+    source_container_name: Optional[str] = None
+    dest_container_name: Optional[str] = None
 
 
 class EventResponse(EventCreate):

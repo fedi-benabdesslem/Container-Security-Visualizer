@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Configure base URL for API calls
-const API_BASE_URL = 'http://127.0.0.1:8000/api';
+const API_BASE_URL = 'http://127.0.0.1:8002/api';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -94,7 +94,7 @@ export interface HealthResponse {
 export const api = {
   // Health check
   checkHealth: async (): Promise<HealthResponse> => {
-    const response = await axios.get('http://127.0.0.1:8000/health');
+    const response = await axios.get('http://127.0.0.1:8002/health');
     return response.data;
   },
 

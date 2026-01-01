@@ -10,6 +10,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utilities import (
     get_container_id_from_pid,
     get_container_metadata,
+    get_all_container_ips,
     categorize_syscall,
     get_risk_score,
     is_security_relevant_syscall,
@@ -20,7 +21,10 @@ from utilities import (
 class EventEnricher:
     def __init__(self):
         self.cache = {}  # cache container_id -> (metadata, cached_time)
+        self.ip_cache = {}  # cache ip_address -> container_id
+        self.ip_cache_time = 0  # last time IP cache was refreshed
         self.pid_ttl = config.cache_ttl
+        self.ip_ttl = 30  # Refresh IP cache every 30 seconds
 
     def _int_to_ip(self, ip_int: int) -> str:
         """Convert integer IP address to dotted string notation."""
@@ -31,6 +35,23 @@ class EventEnricher:
             return socket.inet_ntoa(struct.pack('<I', ip_int))
         except Exception:
             return None
+
+    def _refresh_ip_cache(self):
+        """Refresh the IP-to-container mapping cache if stale."""
+        now = time()
+        if now - self.ip_cache_time >= self.ip_ttl:
+            try:
+                self.ip_cache = get_all_container_ips()
+                self.ip_cache_time = now
+            except Exception as e:
+                print(f"Error refreshing IP cache: {e}", file=sys.stderr)
+
+    def _get_container_id_from_ip(self, ip_addr: str) -> str:
+        """Look up container ID from IP address."""
+        if not ip_addr:
+            return None
+        self._refresh_ip_cache()
+        return self.ip_cache.get(ip_addr)
 
     def enrich(self, event: dict) -> dict:
         """Enrich event with container metadata and additional fields."""
@@ -122,5 +143,27 @@ class EventEnricher:
                 event["is_security_relevant"] = True
 
             event["categories"] = ["network"]
+
+            # Enrich with source/destination container IDs for edge creation
+            # source_container_id is the container that initiated the connection (we already have this from PID)
+            source_container_id = container_id
+            dest_ip = event.get("dest_ip")
+            dest_container_id = self._get_container_id_from_ip(dest_ip)
+            
+            if source_container_id and dest_container_id:
+                # Use stderr for collector logging
+                print(f"EDGE DETECTED: {source_container_id} -> {dest_container_id} (dest_ip: {dest_ip})", file=sys.stderr)
+            
+            if source_container_id:
+                event["source_container_id"] = source_container_id
+                # Get source container name from cache if available
+                if source_container_id in self.cache:
+                    event["source_container_name"] = self.cache[source_container_id][0].get("name")
+            
+            if dest_container_id:
+                event["dest_container_id"] = dest_container_id
+                # Get dest container name from cache if available
+                if dest_container_id in self.cache:
+                    event["dest_container_name"] = self.cache[dest_container_id][0].get("name")
 
         return event

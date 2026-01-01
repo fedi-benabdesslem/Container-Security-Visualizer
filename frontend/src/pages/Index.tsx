@@ -48,9 +48,34 @@ const Index = () => {
         image: message.container_image || '',
         status: message.container_status || 'running',
         riskLevel: message.risk_score && message.risk_score >= 7 ? 'critical' as const :
-                   message.risk_score && message.risk_score >= 4 ? 'warning' as const : 'safe' as const,
+          message.risk_score && message.risk_score >= 4 ? 'warning' as const : 'safe' as const,
       };
       (window as any).graphView?.addNode(nodeData);
+
+      // Handle edge creation for network events
+      if (message.source_container_id && message.dest_container_id) {
+        // Ensure both nodes exist (source might be the one we just added/updated)
+        // The destination node might need to be added if we haven't seen it yet
+        if (message.dest_container_id !== message.container_id) {
+          const destNodeData = {
+            id: message.dest_container_id,
+            name: message.dest_container_name || 'Unknown',
+            image: 'unknown', // We might not have image info for the peer yet
+            status: 'running',
+            riskLevel: 'safe' as const,
+          };
+          (window as any).graphView?.addNode(destNodeData);
+        }
+
+        const edgeId = `${message.source_container_id}-${message.dest_container_id}-network`;
+        (window as any).graphView?.addEdge({
+          id: edgeId,
+          source: message.source_container_id,
+          target: message.dest_container_id,
+          type: 'network',
+          weight: 2
+        });
+      }
 
       // Add event to timeline
       const eventData = {
@@ -70,7 +95,7 @@ const Index = () => {
           risk_score: message.risk_score,
         },
         severity: message.risk_score && message.risk_score >= 7 ? 'critical' as const :
-                  message.risk_score && message.risk_score >= 4 ? 'warning' as const : 'info' as const,
+          message.risk_score && message.risk_score >= 4 ? 'warning' as const : 'info' as const,
       };
       (window as any).eventTimeline?.addEvent(eventData);
 

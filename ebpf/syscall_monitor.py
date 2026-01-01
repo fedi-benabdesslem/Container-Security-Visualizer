@@ -8,6 +8,7 @@ import sys
 THIS_DIR = os.path.dirname(os.path.realpath(__file__))
 C_FILE = os.path.join(THIS_DIR, "syscall_monitor.c")
 b = BPF(src_file=C_FILE)
+b.attach_tracepoint(tp="syscalls:sys_enter_execve", fn_name="trace_execve")
 print("Loaded BPF program and attached to execve tracepoint. Listening for events... (CTRL-C to exit)")
 def _bytes_to_str(b):
     if not b:
@@ -16,11 +17,21 @@ def _bytes_to_str(b):
         return b.decode('utf-8', 'ignore').rstrip("\x00")
     except Exception:
         return str(b)
+# Calculate boot time offset to convert monotonic time to epoch time
+def get_boot_time():
+    with open('/proc/uptime', 'r') as f:
+        uptime_seconds = float(f.readline().split()[0])
+        return datetime.now().timestamp() - uptime_seconds
+
+BOOT_TIME_OFFSET = get_boot_time()
+
 def handle_event(cpu, data, size):
     evt = b["events"].event(data)
+    # Convert monotonic ns to epoch seconds
+    timestamp_seconds = BOOT_TIME_OFFSET + (evt.ts_ns / 1e9)
     out = {
         "timestamp_ns": int(evt.ts_ns),
-        "timestamp_iso": datetime.fromtimestamp(evt.ts_ns / 1e9).isoformat() + "Z",
+        "timestamp_iso": datetime.fromtimestamp(timestamp_seconds).isoformat() + "Z",
         "pid": int(evt.pid),
         "tgid": int(evt.tgid),
         "uid": int(evt.uid),

@@ -9,6 +9,7 @@ THIS_DIR = os.path.dirname(os.path.realpath(__file__))
 C_FILE = os.path.join(THIS_DIR, "net_monitor.c")  # ensure name matches
 
 b = BPF(src_file=C_FILE)
+b.attach_tracepoint(tp="syscalls:sys_enter_connect", fn_name="trace_connect")
 # b.attach_tracepoint(tp="syscalls:sys_enter_connect", fn_name="trace_connect")
 
 print("Loaded BPF program and attached to sys_enter_connect tracepoint. Listening for events... (CTRL-C to exit)", flush=True)
@@ -21,11 +22,21 @@ def _bytes_to_str(bv):
     except Exception:
         return str(bv)
 
+# Calculate boot time offset to convert monotonic time to epoch time
+def get_boot_time():
+    with open('/proc/uptime', 'r') as f:
+        uptime_seconds = float(f.readline().split()[0])
+        return datetime.now().timestamp() - uptime_seconds
+
+BOOT_TIME_OFFSET = get_boot_time()
+
 def handle_event(cpu, data, size):
     evt = b["net_events"].event(data)
+    # Convert monotonic ns to epoch seconds
+    timestamp_seconds = BOOT_TIME_OFFSET + (evt.ts_ns / 1e9)
     out = {
         "timestamp_ns": int(evt.ts_ns),
-        "timestamp_iso": datetime.fromtimestamp(evt.ts_ns / 1e9).isoformat() + "Z",
+        "timestamp_iso": datetime.fromtimestamp(timestamp_seconds).isoformat() + "Z",
         "pid": int(evt.pid),
         "tgid": int(evt.tgid),
         "uid": int(evt.uid),
