@@ -1,6 +1,5 @@
 # Container Security Visualizer
 
-Real-time container security monitoring and visualization using eBPF, FastAPI, and React.
 
 ## What is it actually?
 
