@@ -1,9 +1,5 @@
 # Container Security Visualizer
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 3dc8186 (update.)
 ## What is it actually?
 
 The **Container Security Visualizer** is a production-grade security monitoring platform designed to provide visibility into the runtime behavior of Docker containers. It leverages the power of **eBPF (Extended Berkeley Packet Filter)** to capture low-level system events directly from the Linux kernel without the overhead or security risks of traditional monitoring agents.
