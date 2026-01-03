@@ -1,73 +1,95 @@
-# Welcome to your Lovable project
+# Container Security Visualizer
 
-## Project info
+Real-time container security monitoring and visualization using eBPF, FastAPI, and React.
 
-**URL**: https://lovable.dev/projects/33b45fb8-b148-41f4-abbb-0a354c0f54c2
+## What is it actually?
 
-## How can I edit this code?
+The **Container Security Visualizer** is a production-grade security monitoring platform designed to provide visibility into the runtime behavior of Docker containers. It leverages the power of **eBPF (Extended Berkeley Packet Filter)** to capture low-level system events directly from the Linux kernel without the overhead or security risks of traditional monitoring agents.
 
-There are several ways of editing your application.
+### Key Capabilities:
+- **System Call Monitoring**: Captures `execve` system calls to track process executions within containers.
+- **Network Observability**: Monitors TCP connection attempts to visualize container-to-container and container-to-external communication edges.
+- **Automated Enrichment**: Dynamically maps kernel-level PIDs to Docker container metadata (Name, Image, Status).
+- **Security Analytics**: Real-time risk scoring and categorization of events based on process intent and network destinations.
+- **Live Visual Dashboard**: A modern, interactive dashboard that displays live event streams and dynamic connection graphs via WebSockets.
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/33b45fb8-b148-41f4-abbb-0a354c0f54c2) and start prompting.
+## Technical Architecture
 
-Changes made via Lovable will be committed automatically to this repo.
+- **Backend (FastAPI)**: Ingests events, manages long-term storage in PostgreSQL, and serves the frontend via REST and WebSockets.
+- **Collector (eBPF + BCC)**: A privileged agent that loads eBPF programs into the kernel to capture security events.
+- **Frontend (React + Vite)**: A premium, responsive UI for real-time visualization of your container security posture.
+- **Database (PostgreSQL)**: Reliable storage for historical security events and container metadata.
 
-**Use your preferred IDE**
+---
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## How to Download and Setup
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Prerequisites
+- **Linux** (eBPF features require a Linux kernel 5.4+).
+- **Docker & Docker Compose** installed.
+- **Root/Sudo access** (to attach eBPF probes).
 
-Follow these steps:
+### Instructions
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/fedi-benabdesslem/Container-Security-Visualizer.git
+   cd Container-Security-Visualizer
+   ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-n
-# Step 3: Install the necessary dependencies.
-npm i
+2. **Prepare Environment Variables**:
+   ```bash
+   cp .env.example .env
+   ```
+   *Note: Open `.env` and configure your `DB_PASSWORD` and `CORS_ORIGINS` for production use.*
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+3. **Initialize the Database**:
+   Run the following command to set up the database schema:
+   ```bash
+   docker compose run --rm backend python3 -m alembic upgrade head
+   ```
+
+4. **Launch the Application**:
+   Start all services in the background:
+   ```bash
+   docker compose up -d
+   ```
+
+---
+
+## How to Run & Use it
+
+### Accessing the Dashboard
+Open your web browser and navigate to:
+**[http://localhost:8080](http://localhost:8080)**
+
+### Monitoring the logs
+To view live logs from any component:
+```bash
+docker compose logs -f backend   # For API logs
+docker compose logs -f collector # For eBPF event logs
 ```
 
-**Edit a file directly in GitHub**
+### Stopping the Application
+To shut down all services and keep the data:
+```bash
+docker compose down
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+---
 
-**Use GitHub Codespaces**
+## Project Structure
+```text
+├── backend/          # API & Database Logic
+├── collector/        # eBPF Data Ingestion Agent
+├── config/           # YAML Configuration Templates
+├── ebpf/             # C Programs & Python Loaders
+├── frontend/         # React Visualization Dashboard
+├── utilities/        # Shared Docker & Security Utils
+└── docker-compose.yml # Orchestration Definition
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/33b45fb8-b148-41f4-abbb-0a354c0f54c2) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## Security & Privileges
+The `collector` service requires `--privileged` mode to attach eBPF probes to the host kernel. It is recommended to run this on a dedicated monitoring host or with strict access controls.

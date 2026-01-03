@@ -3,14 +3,11 @@ import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { SecurityEvent } from '@/types';
 import { Activity, Network, FileText, Terminal } from 'lucide-react';
-
 interface EventTimelineProps {
   className?: string;
 }
-
 export const EventTimeline = ({ className }: EventTimelineProps) => {
   const [events, setEvents] = useState<SecurityEvent[]>([]);
-
   const getEventIcon = (type: string) => {
     switch (type) {
       case 'network':
@@ -23,7 +20,6 @@ export const EventTimeline = ({ className }: EventTimelineProps) => {
         return <Activity className="w-4 h-4" />;
     }
   };
-
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case 'critical':
@@ -34,16 +30,12 @@ export const EventTimeline = ({ className }: EventTimelineProps) => {
         return 'text-primary border-primary';
     }
   };
-
   const addEvent = useCallback((event: SecurityEvent) => {
-    setEvents((prev) => [event, ...prev].slice(0, 100)); // Keep last 100 events
+    setEvents((prev) => [event, ...prev].slice(0, 100)); 
   }, []);
-
   const clearEvents = useCallback(() => {
     setEvents([]);
   }, []);
-
-  // Expose methods globally
   useEffect(() => {
     (window as any).eventTimeline = {
       addEvent,
@@ -53,7 +45,6 @@ export const EventTimeline = ({ className }: EventTimelineProps) => {
       delete (window as any).eventTimeline;
     };
   }, [addEvent, clearEvents]);
-
   return (
     <div className={className}>
       <Card className="h-full bg-card border-border flex flex-col">
@@ -61,7 +52,6 @@ export const EventTimeline = ({ className }: EventTimelineProps) => {
           <h2 className="text-lg font-semibold text-foreground">Event Timeline</h2>
           <p className="text-sm text-muted-foreground">Real-time system events</p>
         </div>
-        
         <ScrollArea className="flex-1">
           <div className="p-4 space-y-2">
             {events.length === 0 ? (
@@ -112,5 +102,4 @@ export const EventTimeline = ({ className }: EventTimelineProps) => {
     </div>
   );
 };
-
 export default EventTimeline;

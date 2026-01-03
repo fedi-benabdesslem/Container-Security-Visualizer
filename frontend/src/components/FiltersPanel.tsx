@@ -4,25 +4,21 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Filters } from '@/types';
 import { Filter } from 'lucide-react';
-
 interface FiltersPanelProps {
   className?: string;
   onFiltersChange?: (filters: Filters) => void;
 }
-
 export const FiltersPanel = ({ className, onFiltersChange }: FiltersPanelProps) => {
   const [filters, setFilters] = useState<Filters>({
     showNetwork: true,
     showSyscall: true,
     showSuspicious: false,
   });
-
   const handleFilterChange = (key: keyof Filters, value: boolean) => {
     const newFilters = { ...filters, [key]: value };
     setFilters(newFilters);
     onFiltersChange?.(newFilters);
   };
-
   return (
     <div className={className}>
       <Card className="h-full bg-card border-border p-4">
@@ -33,7 +29,6 @@ export const FiltersPanel = ({ className, onFiltersChange }: FiltersPanelProps) 
           </h2>
           <p className="text-sm text-muted-foreground">Control what's displayed</p>
         </div>
-
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <Label htmlFor="network-filter" className="text-sm text-foreground cursor-pointer">
@@ -45,7 +40,6 @@ export const FiltersPanel = ({ className, onFiltersChange }: FiltersPanelProps) 
               onCheckedChange={(checked) => handleFilterChange('showNetwork', checked)}
             />
           </div>
-
           <div className="flex items-center justify-between">
             <Label htmlFor="syscall-filter" className="text-sm text-foreground cursor-pointer">
               Syscall Events
@@ -56,9 +50,7 @@ export const FiltersPanel = ({ className, onFiltersChange }: FiltersPanelProps) 
               onCheckedChange={(checked) => handleFilterChange('showSyscall', checked)}
             />
           </div>
-
           <div className="border-t border-border my-4"></div>
-
           <div className="flex items-center justify-between">
             <Label htmlFor="suspicious-filter" className="text-sm text-foreground cursor-pointer">
               Highlight Suspicious
@@ -70,7 +62,6 @@ export const FiltersPanel = ({ className, onFiltersChange }: FiltersPanelProps) 
             />
           </div>
         </div>
-
         <div className="mt-6 p-3 rounded-lg bg-secondary">
           <div className="text-xs text-muted-foreground space-y-1">
             <div className="flex items-center gap-2">
@@ -91,5 +82,4 @@ export const FiltersPanel = ({ className, onFiltersChange }: FiltersPanelProps) 
     </div>
   );
 };
-
 export default FiltersPanel;

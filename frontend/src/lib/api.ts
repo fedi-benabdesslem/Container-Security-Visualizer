@@ -1,8 +1,6 @@
 import axios from 'axios';
-
-// Configure base URL for API calls
-const API_BASE_URL = 'http://127.0.0.1:8002/api';
-
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http:
+const ROOT_URL = import.meta.env.VITE_API_BASE_URL || 'http:
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
@@ -10,8 +8,6 @@ const apiClient = axios.create({
     'Content-Type': 'application/json',
   },
 });
-
-// Event interface matching backend schema
 export interface BackendEvent {
   id: number;
   timestamp_iso: string;
@@ -34,7 +30,6 @@ export interface BackendEvent {
   categories: string[];
   is_security_relevant: boolean;
 }
-
 export interface EventsResponse {
   events: BackendEvent[];
   total: number;
@@ -42,7 +37,6 @@ export interface EventsResponse {
   offset: number;
   has_more: boolean;
 }
-
 export interface AlertItem {
   id: number;
   timestamp_iso: string;
@@ -52,7 +46,6 @@ export interface AlertItem {
   categories: string[];
   description: string;
 }
-
 export interface Container {
   container_id: string;
   container_name: string;
@@ -62,7 +55,6 @@ export interface Container {
   last_seen: string;
   risk_level: 'low' | 'medium' | 'high';
 }
-
 export interface SummaryStats {
   total_events: number;
   total_containers: number;
@@ -72,33 +64,26 @@ export interface SummaryStats {
   timespan_start: string;
   timespan_end: string;
 }
-
 export interface TimelineData {
   timestamp: string;
   count: number;
   syscall_count: number;
   network_count: number;
 }
-
 export interface TimelineResponse {
   interval: string;
   data: TimelineData[];
 }
-
 export interface HealthResponse {
   status: string;
   database: string;
   version: string;
 }
-
 export const api = {
-  // Health check
   checkHealth: async (): Promise<HealthResponse> => {
-    const response = await axios.get('http://127.0.0.1:8002/health');
+    const response = await axios.get(`${ROOT_URL}/health`);
     return response.data;
   },
-
-  // Fetch historical events
   getEvents: async (params?: {
     start_time?: number;
     end_time?: number;
@@ -113,20 +98,14 @@ export const api = {
     const response = await apiClient.get('/events', { params });
     return response.data;
   },
-
-  // Fetch security alerts
   getAlerts: async (limit: number = 50): Promise<AlertItem[]> => {
     const response = await apiClient.get('/alerts', { params: { limit } });
     return response.data;
   },
-
-  // Fetch summary stats
   getSummaryStats: async (): Promise<SummaryStats> => {
     const response = await apiClient.get('/stats/summary');
     return response.data;
   },
-
-  // Fetch timeline data
   getTimeline: async (params?: {
     interval?: '1m' | '5m' | '15m' | '1h' | '6h' | '1d';
     start_time?: number;
@@ -135,14 +114,10 @@ export const api = {
     const response = await apiClient.get('/stats/timeline', { params });
     return response.data;
   },
-
-  // Fetch all containers
   getContainers: async (): Promise<Container[]> => {
     const response = await apiClient.get('/containers');
     return response.data;
   },
-
-  // Fetch events for a specific container
   getContainerEvents: async (containerId: string, limit: number = 100): Promise<{ events: BackendEvent[] }> => {
     const response = await apiClient.get(`/containers/${containerId}/events`, { params: { limit } });
     return response.data;

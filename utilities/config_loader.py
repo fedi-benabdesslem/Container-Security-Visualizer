@@ -20,6 +20,16 @@ class Config:
         with open(config_path, 'r') as f:
             self._config = yaml.safe_load(f)
     def get(self, key_path, default=None):
+        env_key = key_path.upper().replace('.', '_')
+        env_value = os.getenv(env_key)
+        if env_value is not None:
+            if env_value.lower() == 'true': return True
+            if env_value.lower() == 'false': return False
+            try:
+                if '.' in env_value: return float(env_value)
+                return int(env_value)
+            except ValueError:
+                return env_value
         keys = key_path.split('.')
         value = self._config
         for key in keys:
@@ -46,5 +56,4 @@ class Config:
     @property
     def cache_ttl(self):
         return self.get('cache.pid_ttl_seconds', 60)
-# Global config instance
 config = Config()

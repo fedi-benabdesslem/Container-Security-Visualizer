@@ -4,10 +4,6 @@ import requests
 from datetime import datetime
 class OutputAdapter:
     def __init__(self, mode="stdout", config=None):
-        """
-        mode: "stdout", "file", or "http"
-        config: dict with settings (file_path, api_endpoint, etc.)
-        """
         self.mode = mode
         self.config = config or {}
         if mode == "file":

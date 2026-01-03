@@ -1,14 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { api } from '@/lib/api';
-
 interface UseHealthCheckOptions {
   pollInterval?: number;
 }
-
 export const useHealthCheck = ({ pollInterval = 5000 }: UseHealthCheckOptions = {}) => {
   const [isHealthy, setIsHealthy] = useState(false);
   const [version, setVersion] = useState<string | null>(null);
-
   const checkHealth = useCallback(async () => {
     try {
       const response = await api.checkHealth();
@@ -19,16 +16,10 @@ export const useHealthCheck = ({ pollInterval = 5000 }: UseHealthCheckOptions = 
       setVersion(null);
     }
   }, []);
-
   useEffect(() => {
-    // Initial check
     checkHealth();
-
-    // Poll periodically
     const interval = setInterval(checkHealth, pollInterval);
-
     return () => clearInterval(interval);
   }, [checkHealth, pollInterval]);
-
   return { isHealthy, version, checkHealth };
 };

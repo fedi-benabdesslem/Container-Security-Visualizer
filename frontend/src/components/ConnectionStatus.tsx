@@ -1,11 +1,9 @@
 import { Activity, WifiOff } from 'lucide-react';
 import { Card } from '@/components/ui/card';
-
 interface ConnectionStatusProps {
   isConnected: boolean;
   className?: string;
 }
-
 export const ConnectionStatus = ({ isConnected, className }: ConnectionStatusProps) => {
   return (
     <Card className={`px-4 py-2 border-border ${className}`}>

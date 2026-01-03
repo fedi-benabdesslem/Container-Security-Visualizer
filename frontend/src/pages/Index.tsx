@@ -12,7 +12,6 @@ import { api } from '@/lib/api';
 import { Shield } from 'lucide-react';
 import { Filters } from '@/types';
 import { useToast } from '@/hooks/use-toast';
-
 const Index = () => {
   const [activeTab, setActiveTab] = useState('live');
   const [filters, setFilters] = useState<Filters>({
@@ -21,27 +20,17 @@ const Index = () => {
     showSuspicious: false,
   });
   const { toast } = useToast();
-
-  // Health check for connection status
   const { isHealthy } = useHealthCheck({ pollInterval: 5000 });
-
-  // Handle incoming WebSocket messages
   const handleMessage = useCallback((message: WebSocketMessage) => {
     console.log('Received WebSocket message:', message);
-
-    // Handle control messages
     if (message.type === 'connected') {
       console.log('WebSocket connected:', message.message);
       return;
     }
-
     if (message.type === 'pong' || message.type === 'stats') {
       return;
     }
-
-    // Handle event messages - these come directly as event objects
     if (message.id && message.container_id) {
-      // Map to container node
       const nodeData = {
         id: message.container_id,
         name: message.container_name || 'Unknown',
@@ -51,22 +40,17 @@ const Index = () => {
           message.risk_score && message.risk_score >= 4 ? 'warning' as const : 'safe' as const,
       };
       (window as any).graphView?.addNode(nodeData);
-
-      // Handle edge creation for network events
       if (message.source_container_id && message.dest_container_id) {
-        // Ensure both nodes exist (source might be the one we just added/updated)
-        // The destination node might need to be added if we haven't seen it yet
         if (message.dest_container_id !== message.container_id) {
           const destNodeData = {
             id: message.dest_container_id,
             name: message.dest_container_name || 'Unknown',
-            image: 'unknown', // We might not have image info for the peer yet
+            image: 'unknown', 
             status: 'running',
             riskLevel: 'safe' as const,
           };
           (window as any).graphView?.addNode(destNodeData);
         }
-
         const edgeId = `${message.source_container_id}-${message.dest_container_id}-network`;
         (window as any).graphView?.addEdge({
           id: edgeId,
@@ -76,8 +60,6 @@ const Index = () => {
           weight: 2
         });
       }
-
-      // Add event to timeline
       const eventData = {
         id: message.id.toString(),
         timestamp: new Date(message.timestamp_iso || Date.now()).getTime(),
@@ -98,8 +80,6 @@ const Index = () => {
           message.risk_score && message.risk_score >= 4 ? 'warning' as const : 'info' as const,
       };
       (window as any).eventTimeline?.addEvent(eventData);
-
-      // If high risk, also push to alerts
       if (message.is_security_relevant && message.risk_score && message.risk_score >= 7) {
         const alertData = {
           id: `alert-${message.id}`,
@@ -113,8 +93,6 @@ const Index = () => {
       }
     }
   }, []);
-
-  // WebSocket connection for real-time events
   const { isConnected } = useWebSocket({
     filters,
     onMessage: handleMessage,
@@ -126,13 +104,10 @@ const Index = () => {
     },
     autoReconnect: true,
   });
-
-  // Poll alerts periodically
   useEffect(() => {
     const fetchAlerts = async () => {
       try {
         const alerts = await api.getAlerts(50);
-        // Push alerts to panel
         alerts.forEach(alert => {
           (window as any).alertsPanel?.pushAlert({
             id: `api-alert-${alert.id}`,
@@ -144,28 +119,19 @@ const Index = () => {
           });
         });
       } catch (error) {
-        // Silent fail - alerts will come through WebSocket too
       }
     };
-
-    // Initial fetch
     fetchAlerts();
-
-    // Poll every 10 seconds
     const interval = setInterval(fetchAlerts, 10000);
     return () => clearInterval(interval);
   }, []);
-
   const handleFiltersChange = (newFilters: Filters) => {
     setFilters(newFilters);
   };
-
-  // Connection status combines health check and WebSocket
   const connectionStatus = isHealthy && isConnected;
-
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
+      {}
       <header className="border-b border-border bg-card">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
@@ -186,28 +152,24 @@ const Index = () => {
           </div>
         </div>
       </header>
-
-      {/* Main Content */}
+      {}
       <main className="container mx-auto px-4 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full">
           <TabsList className="mb-4">
             <TabsTrigger value="live">Live View</TabsTrigger>
             <TabsTrigger value="history">Historical Data</TabsTrigger>
           </TabsList>
-
           <TabsContent value="live" className="space-y-4">
             <div className="grid grid-cols-12 gap-4 h-[calc(100vh-16rem)]">
-              {/* Left Panel - Filters */}
+              {}
               <div className="col-span-2">
                 <FiltersPanel className="h-full" onFiltersChange={handleFiltersChange} />
               </div>
-
-              {/* Center - Graph View */}
+              {}
               <div className="col-span-7">
                 <GraphView className="h-full" />
               </div>
-
-              {/* Right Panel - Events & Alerts */}
+              {}
               <div className="col-span-3 space-y-4 h-full">
                 <div className="h-1/2">
                   <AlertsPanel className="h-full" />
@@ -218,7 +180,6 @@ const Index = () => {
               </div>
             </div>
           </TabsContent>
-
           <TabsContent value="history" className="h-[calc(100vh-16rem)]">
             <HistoricalView className="h-full" />
           </TabsContent>
@@ -227,5 +188,4 @@ const Index = () => {
     </div>
   );
 };
-
 export default Index;

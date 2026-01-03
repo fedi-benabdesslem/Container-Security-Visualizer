@@ -1,20 +1,13 @@
 from typing import Optional, List
 SECURITY_RELEVANT_SYSCALLS = {
-    # Process manipulation
     'execve', 'execveat', 'fork', 'vfork', 'clone', 'clone3',
-    # Privilege escalation
     'setuid', 'setgid', 'setreuid', 'setregid', 'setresuid', 'setresgid',
     'capset', 'prctl',
-    # File access
     'open', 'openat', 'openat2', 'creat',
-    # Network
     'socket', 'connect', 'bind', 'listen', 'accept', 'accept4',
-    # Module loading
     'init_module', 'finit_module', 'delete_module',
-    # System configuration
     'mount', 'umount', 'umount2', 'pivot_root', 'chroot',
     'reboot', 'sethostname', 'setdomainname',
-    # Monitoring evasion
     'ptrace', 'process_vm_readv', 'process_vm_writev'
 }
 SYSCALL_CATEGORIES = {
@@ -28,9 +21,6 @@ SYSCALL_CATEGORIES = {
 def parse_syscall_name(argv: str) -> Optional[str]:
     if not argv:
         return None
-
-    # For now, we primarily track execve from our monitors
-    # This can be extended based on what data our monitors capture
     return 'execve'
 def is_security_relevant_syscall(syscall_name: str) -> bool:
     return syscall_name.lower() in SECURITY_RELEVANT_SYSCALLS

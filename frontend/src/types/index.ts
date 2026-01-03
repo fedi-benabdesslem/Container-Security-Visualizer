@@ -7,7 +7,6 @@ export interface ContainerNode {
   memory?: number;
   io?: number;
 }
-
 export interface ContainerEdge {
   id: string;
   source: string;
@@ -15,7 +14,6 @@ export interface ContainerEdge {
   type: 'network' | 'syscall' | 'file';
   weight?: number;
 }
-
 export interface SecurityEvent {
   id: string;
   timestamp: number;
@@ -26,7 +24,6 @@ export interface SecurityEvent {
   description: string;
   data?: any;
 }
-
 export interface Alert {
   id: string;
   timestamp: number;
@@ -36,12 +33,10 @@ export interface Alert {
   containerId?: string;
   containerName?: string;
 }
-
 export interface GraphData {
   nodes: ContainerNode[];
   edges: ContainerEdge[];
 }
-
 export interface Filters {
   showNetwork: boolean;
   showSyscall: boolean;

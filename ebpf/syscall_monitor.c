@@ -21,7 +21,6 @@ struct execve_args {
   const char *const *argv;
   const char *const *envp;
 };
-
 int trace_execve(struct execve_args *args) {
   struct event_t evt = {};
   u64 pidtgid = bpf_get_current_pid_tgid();
@@ -30,12 +29,10 @@ int trace_execve(struct execve_args *args) {
   evt.ts_ns = bpf_ktime_get_ns();
   evt.uid = bpf_get_current_uid_gid() & 0xffffffff;
   bpf_get_current_comm(&evt.comm, sizeof(evt.comm));
-
   if (args->filename) {
     bpf_probe_read_user_str(&evt.argv, sizeof(evt.argv),
                             (void *)args->filename);
   }
-
   events.perf_submit(args, &evt, sizeof(evt));
   return 0;
 }

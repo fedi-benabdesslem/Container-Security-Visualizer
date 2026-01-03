@@ -6,18 +6,15 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { api, BackendEvent } from '@/lib/api';
 import { Calendar, Search, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-
 interface HistoricalViewProps {
   className?: string;
 }
-
 export const HistoricalView = ({ className }: HistoricalViewProps) => {
   const [events, setEvents] = useState<BackendEvent[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [total, setTotal] = useState(0);
   const { toast } = useToast();
-
   const fetchHistory = async (search?: string) => {
     setLoading(true);
     try {
@@ -38,21 +35,17 @@ export const HistoricalView = ({ className }: HistoricalViewProps) => {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchHistory();
   }, []);
-
   const handleSearch = () => {
     fetchHistory(searchTerm);
   };
-
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handleSearch();
     }
   };
-
   return (
     <div className={className}>
       <Card className="h-full bg-card border-border flex flex-col">
@@ -77,7 +70,6 @@ export const HistoricalView = ({ className }: HistoricalViewProps) => {
               Refresh
             </Button>
           </div>
-
           <div className="relative flex gap-2">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -95,7 +87,6 @@ export const HistoricalView = ({ className }: HistoricalViewProps) => {
             </Button>
           </div>
         </div>
-
         <ScrollArea className="flex-1">
           <div className="p-4">
             {loading ? (
@@ -160,5 +151,4 @@ export const HistoricalView = ({ className }: HistoricalViewProps) => {
     </div>
   );
 };
-
 export default HistoricalView;

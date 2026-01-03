@@ -3,10 +3,7 @@ import os
 import subprocess
 import threading
 import queue
-
-# Add parent directory to path so utilities can be found
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 from event_enricher import EventEnricher
 from output_adapter import OutputAdapter
 from utilities import config
@@ -36,15 +33,11 @@ def main():
     print("Initializing EventEnricher...", file=sys.stderr, flush=True)
     enricher = EventEnricher()
     print("EventEnricher initialized.", file=sys.stderr, flush=True)
-    
-    
     output = OutputAdapter(mode=config.collector_output_mode, config={
         "api_endpoint": config.collector_api_endpoint
     })
     print(f"OutputAdapter initialized (mode: {config.collector_output_mode}).", file=sys.stderr, flush=True)
-    
     sudo_cmd = []
-    
     print(f"Starting syscall monitor (sudo: {os.geteuid() != 0})...", file=sys.stderr, flush=True)
     syscall_proc = subprocess.Popen(
         sudo_cmd + ["python3", SYSCALL_MONITOR],
@@ -52,7 +45,6 @@ def main():
         text=True, bufsize=1
     )
     print("Syscall monitor process started.", file=sys.stderr, flush=True)
-    
     print(f"Starting network monitor (sudo: {os.geteuid() != 0})...", file=sys.stderr, flush=True)
     net_proc = subprocess.Popen(
         sudo_cmd + ["python3", NET_MONITOR],
@@ -71,25 +63,14 @@ def main():
         daemon=True
     ).start()
     print("Collector ready...", file=sys.stderr)
-    try:    # Main
+    try:
         while True:
-            # The user's requested change for docker.from_env was syntactically incorrect.
-            # Assuming the intent was to add a debug print or a placeholder for a Docker client.
-            # For now, keeping the original event_queue.get call.
-            # If `docker` module is intended, it needs to be imported.
-            # try:
-            #     import docker
-            #     client = docker.from_env(timeout=5)
-            # except Exception as e:
-            #     print(f"Docker client error: {e}", file=sys.stderr, flush=True)
             try:
                 event = event_queue.get(timeout=1)
-                # Debug: log event details
                 comm = event.get("comm", "unknown")
                 argv = event.get("argv", "")
                 mtype = event.get("monitor_type", "unknown")
                 print(f"DEBUG: Processing {mtype} event: {comm} {argv}", file=sys.stderr)
-                
                 enriched = enricher.enrich(event)
                 if enriched is None:
                     continue

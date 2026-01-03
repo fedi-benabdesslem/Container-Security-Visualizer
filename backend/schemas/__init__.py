@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# schemas/__init__.py - Export all schemas
-
 from .event import (
     EventBase,
     EventCreate,
@@ -10,7 +7,6 @@ from .event import (
     SyscallEventCreate,
     NetworkEventCreate
 )
-
 from .response import (
     SuccessResponse,
     ErrorResponse,
@@ -21,9 +17,7 @@ from .response import (
     ContainerInfo,
     AlertEvent
 )
-
 __all__ = [
-    # Event schemas
     "EventBase",
     "EventCreate",
     "EventResponse",
@@ -31,8 +25,6 @@ __all__ = [
     "EventListResponse",
     "SyscallEventCreate",
     "NetworkEventCreate",
-
-    # Response schemas
     "SuccessResponse",
     "ErrorResponse",
     "HealthResponse",

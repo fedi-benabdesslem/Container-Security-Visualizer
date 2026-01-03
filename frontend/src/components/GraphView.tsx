@@ -2,20 +2,15 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import cytoscape, { Core, NodeSingular } from 'cytoscape';
 import { Card } from '@/components/ui/card';
 import { ContainerNode, ContainerEdge } from '@/types';
-
 interface GraphViewProps {
   className?: string;
 }
-
 export const GraphView = ({ className }: GraphViewProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const cyRef = useRef<Core | null>(null);
   const [selectedNode, setSelectedNode] = useState<ContainerNode | null>(null);
-
   useEffect(() => {
     if (!containerRef.current) return;
-
-    // Initialize Cytoscape
     cyRef.current = cytoscape({
       container: containerRef.current,
       style: [
@@ -86,8 +81,6 @@ export const GraphView = ({ className }: GraphViewProps) => {
         padding: 50,
       },
     });
-
-    // Handle node selection
     cyRef.current.on('tap', 'node', (event) => {
       const node = event.target;
       setSelectedNode({
@@ -100,30 +93,22 @@ export const GraphView = ({ className }: GraphViewProps) => {
         io: node.data('io'),
       });
     });
-
-    // Handle background tap to deselect
     cyRef.current.on('tap', (event) => {
       if (event.target === cyRef.current) {
         setSelectedNode(null);
       }
     });
-
     return () => {
       cyRef.current?.destroy();
     };
   }, []);
-
-  // Public API methods - memoized with useCallback for stability
   const addNode = useCallback((node: ContainerNode) => {
     if (!cyRef.current) return;
-    
     try {
       const exists = cyRef.current.getElementById(node.id).length > 0;
       if (exists) {
-        // Update existing node
         cyRef.current.getElementById(node.id).data(node);
       } else {
-        // Add new node
         cyRef.current.add({
           group: 'nodes',
           data: node,
@@ -134,10 +119,8 @@ export const GraphView = ({ className }: GraphViewProps) => {
       console.error('Error adding node:', error);
     }
   }, []);
-
   const addEdge = useCallback((edge: ContainerEdge) => {
     if (!cyRef.current) return;
-    
     try {
       const exists = cyRef.current.getElementById(edge.id).length > 0;
       if (!exists) {
@@ -150,7 +133,6 @@ export const GraphView = ({ className }: GraphViewProps) => {
       console.error('Error adding edge:', error);
     }
   }, []);
-
   const removeNode = useCallback((nodeId: string) => {
     if (!cyRef.current) return;
     try {
@@ -159,7 +141,6 @@ export const GraphView = ({ className }: GraphViewProps) => {
       console.error('Error removing node:', error);
     }
   }, []);
-
   const clearGraph = useCallback(() => {
     if (!cyRef.current) return;
     try {
@@ -168,7 +149,6 @@ export const GraphView = ({ className }: GraphViewProps) => {
       console.error('Error clearing graph:', error);
     }
   }, []);
-
   const highlightNode = useCallback((nodeId: string) => {
     if (!cyRef.current) return;
     try {
@@ -180,8 +160,6 @@ export const GraphView = ({ className }: GraphViewProps) => {
       console.error('Error highlighting node:', error);
     }
   }, []);
-
-  // Expose methods via ref
   useEffect(() => {
     (window as any).graphView = {
       addNode,
@@ -194,12 +172,10 @@ export const GraphView = ({ className }: GraphViewProps) => {
       delete (window as any).graphView;
     };
   }, [addNode, addEdge, removeNode, clearGraph, highlightNode]);
-
   return (
     <div className={className}>
       <Card className="h-full bg-card border-border overflow-hidden">
         <div ref={containerRef} className="w-full h-full" />
-        
         {selectedNode && (
           <Card className="absolute bottom-4 right-4 w-80 p-4 bg-card border-primary shadow-glow">
             <h3 className="text-lg font-semibold mb-2 text-foreground">{selectedNode.name}</h3>
@@ -243,5 +219,4 @@ export const GraphView = ({ className }: GraphViewProps) => {
     </div>
   );
 };
-
 export default GraphView;

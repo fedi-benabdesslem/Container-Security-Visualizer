@@ -3,23 +3,17 @@ import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Alert } from '@/types';
 import { AlertTriangle, XCircle } from 'lucide-react';
-
 interface AlertsPanelProps {
   className?: string;
 }
-
 export const AlertsPanel = ({ className }: AlertsPanelProps) => {
   const [alerts, setAlerts] = useState<Alert[]>([]);
-
   const pushAlert = useCallback((alert: Alert) => {
-    setAlerts((prev) => [alert, ...prev].slice(0, 50)); // Keep last 50 alerts
+    setAlerts((prev) => [alert, ...prev].slice(0, 50)); 
   }, []);
-
   const clearAlerts = useCallback(() => {
     setAlerts([]);
   }, []);
-
-  // Expose methods globally
   useEffect(() => {
     (window as any).alertsPanel = {
       pushAlert,
@@ -29,7 +23,6 @@ export const AlertsPanel = ({ className }: AlertsPanelProps) => {
       delete (window as any).alertsPanel;
     };
   }, [pushAlert, clearAlerts]);
-
   return (
     <div className={className}>
       <Card className="h-full bg-card border-border flex flex-col">
@@ -40,7 +33,6 @@ export const AlertsPanel = ({ className }: AlertsPanelProps) => {
           </h2>
           <p className="text-sm text-muted-foreground">Suspicious activity detected</p>
         </div>
-        
         <ScrollArea className="flex-1">
           <div className="p-4 space-y-3">
             {alerts.length === 0 ? (
@@ -96,5 +88,4 @@ export const AlertsPanel = ({ className }: AlertsPanelProps) => {
     </div>
   );
 };
-
 export default AlertsPanel;
