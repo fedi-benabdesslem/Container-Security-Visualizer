@@ -91,3 +91,5 @@ docker compose down
 
 ## Security & Privileges
 The `collector` service requires `--privileged` mode to attach eBPF probes to the host kernel. It is recommended to run this on a dedicated monitoring host or with strict access controls.
+## 📄 License
+This project is open source and available under the [MIT License](LICENSE).
