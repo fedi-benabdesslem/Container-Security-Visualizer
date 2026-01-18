@@ -157,7 +157,7 @@ Container-Security-Visualizer/
 │   ├── models/         # SQLAlchemy Database Models
 │   └── services/       # Business Logic & Event Processing
 ├── collector/          # Python eBPF Consumer
-│   └── ebpf/           # C source code for BPF programs
+├── ebpf/               # C source code for BPF programs
 ├── frontend/           # React Application
 │   ├── src/
 │   │   ├── components/ # Reusable UI Components
