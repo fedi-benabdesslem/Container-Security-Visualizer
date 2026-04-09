@@ -57,3 +57,6 @@ backend/logs/
 *.ntvs*
 *.njsproj
 *.sln
+/backend/__pycache__
+/backend/__pycache__
+/utilities/__pycache__
